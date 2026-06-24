@@ -1,0 +1,6 @@
+{
+  "name": "Life OS",
+  "description": "The ultimate personal operating system and digital vault. Manage your resume, projects, career, documents, notes, goals, assets, passwords, contacts, and utilize the built-in AI assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
