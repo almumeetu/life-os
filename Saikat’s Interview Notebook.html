@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="bn"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saikat’s Interview Notebook</title>
+<link href="https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;600;700&family=Caveat:wght@700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#fdf8ec;--line:#cfe3f2;--ink:#2b2a33;--card:#fffdf6;--mut:#6b6a75;--margin:#f08a8a}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1d1c24;--line:#2d3a4a;--ink:#ecebf3;--card:#26252f;--mut:#a6a5b4;--margin:#a45;}}
+:root[data-theme="dark"]{--bg:#1d1c24;--line:#2d3a4a;--ink:#ecebf3;--card:#26252f;--mut:#a6a5b4;--margin:#a45}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg) repeating-linear-gradient(transparent 0 31px,var(--line) 31px 32px);color:var(--ink);font:16px/1.75 'Hind Siliguri','Inter',system-ui,sans-serif}
+.wrap{max-width:820px;margin:auto;padding:20px 16px 60px 16px}
+h1{font:700 clamp(34px,7vw,52px)/1.1 'Caveat',cursive;margin:8px 0 2px}
+h1 span{background:linear-gradient(transparent 55%,#ffe066 55%);padding:0 6px}
+.sub{color:var(--mut);margin:0 0 14px}
+.bar{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+button{font:600 14px 'Hind Siliguri',sans-serif;border:2px solid var(--c,#555);background:var(--card);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer}
+button.on{background:var(--c,#555);color:#fff}
+.lang{margin-left:auto}
+.q{background:var(--card);border-radius:10px;border-left:6px solid var(--c);margin:18px 0;padding:14px 18px 14px 44px;box-shadow:0 3px 0 rgba(0,0,0,.12);position:relative}
+.q:before{content:"";position:absolute;left:28px;top:0;bottom:0;width:2px;background:var(--margin);opacity:.6}
+.q:after{content:"";position:absolute;left:8px;top:22px;width:12px;height:12px;border-radius:50%;background:var(--bg);box-shadow:inset 0 2px 3px rgba(0,0,0,.35)}
+.q h3{margin:0 0 6px;font:700 19px/1.4 'Inter','Hind Siliguri',sans-serif;color:var(--c)}
+.tag{font:600 11px 'Inter';letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--c);padding:1px 7px;border-radius:4px;margin-right:6px}
+.q p{margin:6px 0}
+.ex{background:#fff3a8;color:#3a3410;padding:10px 14px;border-radius:4px;transform:rotate(-.4deg);margin-top:10px;box-shadow:2px 3px 6px rgba(0,0,0,.2)}
+.ex b{font:700 20px 'Caveat',cursive}
+.en-only .bn,.bn-only .en{display:none}
+.note{color:var(--mut);font-size:14px;margin-top:30px}
+</style></head><body><div class="wrap">
+<h1>Saikat’s <span>Interview Notebook</span></h1>
+<p class="sub">Full Stack Developer · Node.js · React · PostgreSQL — বাংলা + English, real-life examples সহ</p>
+<div class="bar" id="tabs"></div>
+<div id="out"></div>
+<p class="note">⚠️ “Example” note-গুলো ব্যাখ্যার নমুনা। নিজের আসল কাজের সাথে মিলিয়ে বলুন — CV-তে যা নেই তা নিজের অভিজ্ঞতা হিসেবে দাবি করবেন না। / Adapt examples to what you truly did.</p>
+</div>
+<script>
+const D=[
+{t:"🙋 Intro",c:"#e8590c",i:[
+{q:"Tell me about yourself.",en:"I’m Al Mumeetu Saikat, a full stack developer with 4+ years of experience. On the frontend I use React, Next.js and TypeScript; on the backend Node.js, Express and PostgreSQL with Prisma and Supabase. At Softzino I build production e-commerce and POS apps. Before that I delivered 120+ responsive websites. I enjoy turning requirements into clean, scalable features.",bn:"আমি আল মুমিতু সাইকাত, ৪+ বছরের অভিজ্ঞতার ফুল স্ট্যাক ডেভেলপার। ফ্রন্টএন্ডে React, Next.js, TypeScript এবং ব্যাকএন্ডে Node.js, Express, PostgreSQL (Prisma, Supabase) ব্যবহার করি। বর্তমানে Softzino-তে e-commerce ও POS অ্যাপ বানাই। আগে ১২০+ রেসপনসিভ ওয়েবসাইট ডেলিভারি দিয়েছি।",ex:"৬০–৯০ সেকেন্ডে শেষ করুন: Present → Past → Future। শেষে বলুন: “I’m available to join immediately.”"},
+{q:"Why should we hire you?",en:"I cover the whole flow: UI, API and database. I’ve shipped production commerce software, worked directly with clients, and follow Git, code review and Agile. That means less hand-holding and faster delivery.",bn:"আমি UI, API ও ডাটাবেস— পুরো ফ্লো সামলাতে পারি। প্রোডাকশন কমার্স সফটওয়্যার ডেলিভারি, ক্লায়েন্টের সাথে সরাসরি কাজ এবং Git/Code Review/Agile অভ্যাস আছে — তাই দ্রুত কাজে যুক্ত হতে পারব।",ex:"Example: নতুন টিমে ১ম সপ্তাহেই একটি ছোট bug-fix PR দিয়ে শুরু করার পরিকল্পনা বললে ইমপ্রেশন ভালো হয়।"}]},
+{t:"💼 Experience",c:"#1c7ed6",i:[
+{q:"Describe a project you’re proud of (STAR).",en:"Situation: a retail client needed an e-commerce and POS system. Task: product management, checkout and inventory. Action: I built it with Next.js, TypeScript, Prisma and PostgreSQL, using reusable components and REST APIs. Result: a production-ready workflow for sales and stock.",bn:"পরিস্থিতি: ক্লায়েন্টের e-commerce ও POS দরকার ছিল। কাজ: প্রোডাক্ট ম্যানেজমেন্ট, চেকআউট, ইনভেন্টরি। পদক্ষেপ: Next.js, TypeScript, Prisma, PostgreSQL দিয়ে reusable component ও REST API বানিয়েছি। ফলাফল: বিক্রি ও স্টক ম্যানেজমেন্টের production-ready ওয়ার্কফ্লো।",ex:"Real-life: দোকানে শেষ ১টি পণ্য দুই ক্যাশিয়ার একসাথে বিক্রি করতে পারে। Prisma transaction ব্যবহার করে স্টক কমালে ‘oversell’ আটকানো যায়।"},
+{q:"How do you handle client feedback and changing requirements?",en:"I clarify the requirement first, confirm it in writing, then break it into small tasks. For changes I explain the impact on time, so the client can prioritise.",bn:"আগে রিকোয়ারমেন্ট স্পষ্ট করি, লিখে কনফার্ম করি, তারপর ছোট ছোট টাস্কে ভাগ করি। পরিবর্তন এলে সময়ের প্রভাব জানাই যাতে ক্লায়েন্ট অগ্রাধিকার ঠিক করতে পারেন।",ex:"Example: ‘বাটনের রঙ বদলান’ আর ‘পুরো checkout flow বদলান’ — দুটোর সময় আলাদা, সেটা বুঝিয়ে বলা।"},
+{q:"You worked on 100+ WordPress projects — what did you learn?",en:"Repeatable process matters. I built custom Elementor widgets for reuse and fixed frontend issues quickly, which taught me speed, attention to detail and working with many clients.",bn:"পুনরাবৃত্তিযোগ্য প্রসেস গুরুত্বপূর্ণ। কাস্টম Elementor widget বানিয়ে রিইউজ করেছি, ফ্রন্টএন্ড ফিক্স দ্রুত করেছি — এতে গতি, খুঁটিনাটি নজর ও বহু ক্লায়েন্টের সাথে কাজ শিখেছি।",ex:"Example: একই ‘pricing table’ widget ১০টি সাইটে ব্যবহার = সময় বাঁচে।"}]},
+{t:"🟨 JS & TS",c:"#f08c00",i:[
+{q:"What is a closure?",en:"A closure is a function that remembers variables from its outer scope even after the outer function has finished.",bn:"Closure হলো এমন ফাংশন যা বাইরের ফাংশন শেষ হলেও তার ভেরিয়েবল মনে রাখে।",ex:"Real-life: ATM-এর কাউন্টার — ভেতরের count বাইরে থেকে সরাসরি বদলানো যায় না, শুধু increment() দিয়ে।\nfunction counter(){let n=0;return()=>++n}"},
+{q:"Explain async/await and the event loop.",en:"JavaScript is single-threaded. Async work (API calls) is handled by the event loop, so the UI doesn’t freeze. async/await is cleaner syntax over Promises.",bn:"JavaScript সিঙ্গেল-থ্রেডেড। API কলের মতো async কাজ event loop সামলায়, তাই UI আটকে যায় না। async/await হলো Promise-এর সহজ লেখার ধরন।",ex:"Real-life: রেস্টুরেন্টে অর্ডার দিয়ে টেবিলে বসে থাকা — ওয়েটার (event loop) অন্য টেবিলও সামলায়।"},
+{q:"Why TypeScript over JavaScript?",en:"Static types catch bugs at compile time, improve autocomplete and make large codebases safer to refactor.",bn:"Static type কম্পাইল টাইমেই বাগ ধরে, autocomplete ভালো করে এবং বড় প্রজেক্টে রিফ্যাক্টর নিরাপদ করে।",ex:"Example: price: number জায়গায় ভুল করে \"১০০\" string গেলে TS সাথে সাথে এরর দেখায়।"}]},
+{t:"⚛️ React & Next",c:"#0ca678",i:[
+{q:"useState vs useEffect?",en:"useState stores component data; useEffect runs side effects (fetching, subscriptions) after render, controlled by a dependency array.",bn:"useState কম্পোনেন্টের ডেটা রাখে; useEffect রেন্ডারের পর side effect (fetch, subscription) চালায়, dependency array দিয়ে নিয়ন্ত্রিত।",ex:"Example: কার্টের সংখ্যা = useState; পেজ খুললে প্রোডাক্ট আনা = useEffect।"},
+{q:"SSR vs SSG vs CSR in Next.js?",en:"SSG builds pages ahead of time (fast, good for static content). SSR renders per request (fresh data, SEO). CSR renders in the browser (dashboards).",bn:"SSG আগে থেকেই পেজ বানায় (দ্রুত)। SSR প্রতি রিকোয়েস্টে রেন্ডার করে (ফ্রেশ ডেটা, SEO)। CSR ব্রাউজারে রেন্ডার (ড্যাশবোর্ড)।",ex:"Example: ব্লগ = SSG, প্রোডাক্ট স্টক পেজ = SSR, admin dashboard = CSR।"},
+{q:"How do you keep React apps fast?",en:"Reusable small components, stable keys in lists, memoisation only where measured, code splitting and optimised images.",bn:"ছোট reusable কম্পোনেন্ট, লিস্টে স্থির key, মেপে দেখে memo ব্যবহার, code splitting ও অপটিমাইজড ইমেজ।",ex:"Example: ১০০০ প্রোডাক্টের তালিকায় pagination/virtualisation।"}]},
+{t:"🟢 Node & APIs",c:"#37b24d",i:[
+{q:"What is REST? Common status codes?",en:"REST uses HTTP methods on resources: GET read, POST create, PUT/PATCH update, DELETE remove. Codes: 200 OK, 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found, 500 Server Error.",bn:"REST-এ রিসোর্সের ওপর HTTP মেথড: GET পড়া, POST তৈরি, PUT/PATCH আপডেট, DELETE মোছা। কোড: 200, 201, 400, 401, 404, 500।",ex:"Example: POST /orders → 201; অন্যের অর্ডার দেখতে চাইলে 403।"},
+{q:"What is middleware in Express?",en:"Middleware are functions that run between request and response — for logging, authentication, validation or error handling.",bn:"Middleware হলো রিকোয়েস্ট ও রেসপন্সের মাঝের ফাংশন — লগিং, অথ, ভ্যালিডেশন, এরর হ্যান্ডলিং।",ex:"Real-life: অফিসের গেটে সিকিউরিটি কার্ড চেক — ভেতরে ঢোকার আগে verify।"}]},
+{t:"🗄️ Database",c:"#7048e8",i:[
+{q:"PostgreSQL vs MongoDB?",en:"PostgreSQL is relational with strong consistency and joins — ideal for orders and inventory. MongoDB is flexible and document-based — good for evolving structures.",bn:"PostgreSQL রিলেশনাল, শক্তিশালী consistency ও join — অর্ডার/ইনভেন্টরির জন্য ভালো। MongoDB ফ্লেক্সিবল ডকুমেন্ট-ভিত্তিক — পরিবর্তনশীল গঠনে ভালো।",ex:"Example: POS-এ PostgreSQL (টাকার হিসাব নিখুঁত), Distributors System-এ MongoDB।"},
+{q:"Why Prisma? What about N+1 and indexes?",en:"Prisma gives type-safe queries and migrations. Avoid N+1 with include/select; add indexes on columns used in filters.",bn:"Prisma টাইপ-সেফ কুয়েরি ও migration দেয়। N+1 এড়াতে include/select, আর ফিল্টারে ব্যবহৃত কলামে index দিন।",ex:"Example: SKU কলামে index দিলে ১ লাখ প্রোডাক্টে সার্চ দ্রুত হয়।"}]},
+{t:"🛠️ Tools & Agile",c:"#d6336c",i:[
+{q:"Git merge vs rebase?",en:"Merge keeps full history with a merge commit; rebase replays commits for a linear history. Never rebase shared branches.",bn:"Merge পুরো ইতিহাস রাখে; rebase কমিট সাজিয়ে সরলরেখার ইতিহাস বানায়। শেয়ার্ড ব্রাঞ্চে rebase নয়।",ex:"Example: ফিচার ব্রাঞ্চ PR-এর আগে main থেকে rebase করে পরিষ্কার রাখা।"},
+{q:"Why Docker? What does CI do?",en:"Docker makes environments identical everywhere. CI (GitHub Actions) runs tests and builds on every push to catch issues early.",bn:"Docker সব জায়গায় একই এনভায়রনমেন্ট দেয়। CI (GitHub Actions) প্রতি push-এ টেস্ট/বিল্ড চালিয়ে সমস্যা আগেই ধরে।",ex:"Real-life: ‘আমার মেশিনে চলে’ সমস্যা শেষ।"}]},
+{t:"🤝 HR",c:"#495057",i:[
+{q:"Your B.Sc. is incomplete — why?",en:"I completed two years, then moved into industry to build real skills. Since 2022 I’ve worked full-time on production projects, and I keep learning continuously.",bn:"দুই বছর শেষ করে আমি বাস্তব দক্ষতা অর্জনে ইন্ডাস্ট্রিতে যুক্ত হই। ২০২২ থেকে ফুল-টাইম প্রোডাকশন কাজ করছি এবং শেখা চালিয়ে যাচ্ছি।",ex:"সৎ থাকুন, ইতিবাচকভাবে বলুন, প্রমাণ হিসেবে প্রজেক্ট/GitHub দেখান।"},
+{q:"Biggest weakness?",en:"I used to over-polish UI before getting feedback. Now I share early drafts and iterate.",bn:"আগে ফিডব্যাকের আগেই UI বেশি পালিশ করতাম। এখন আগে খসড়া শেয়ার করে ধাপে ধাপে উন্নত করি।",ex:"Weakness + সমাধান — দুটোই বলুন।"},
+{q:"Questions to ask the interviewer",en:"What does the team’s code review process look like? What would success in the first 90 days be? What is the tech stack roadmap?",bn:"টিমের code review প্রক্রিয়া কেমন? প্রথম ৯০ দিনে সফলতার মাপকাঠি কী? টেক স্ট্যাকের ভবিষ্যৎ পরিকল্পনা কী?",ex:"শেষে প্রশ্ন করলে আগ্রহ ও পরিপক্বতা দেখায়।"}]}];
+let cur=0,lang="both";
+const tabs=document.getElementById("tabs"),out=document.getElementById("out");
+function render(){
+tabs.innerHTML="";
+D.forEach((c,k)=>{const b=document.createElement("button");b.textContent=c.t;b.style.setProperty("--c",c.c);if(k==cur)b.className="on";b.onclick=()=>{cur=k;render()};tabs.appendChild(b)});
+const l=document.createElement("span");l.className="lang";
+[["both","EN+বাং"],["en","EN"],["bn","বাংলা"]].forEach(([v,n])=>{const b=document.createElement("button");b.textContent=n;if(lang==v)b.className="on";b.onclick=()=>{lang=v;render()};l.appendChild(b)});
+tabs.appendChild(l);
+const c=D[cur];out.className=lang=="en"?"en-only":lang=="bn"?"bn-only":"";
+out.innerHTML=c.i.map((x,n)=>`<div class="q" style="--c:${c.c}"><h3>Q${n+1}. ${x.q}</h3><p class="en"><span class="tag">EN</span>${x.en}</p><p class="bn"><span class="tag">বাং</span>${x.bn}</p><div class="ex"><b>✏️ Example</b><br>${x.ex.replace(/\n/g,"<br>")}</div></div>`).join("");
+}
+render();
+</script></body></html>
