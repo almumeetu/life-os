@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id            String             @id @default(cuid())
+  name          String
+  email         String             @unique
+  emailVerified Boolean            @default(false)
+  image         String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  lifeItems     LifeItem[]
+  habits        Habit[]
+  applications  Application[]
+  categories    MoneyCategory[]
+  bankAccounts  FinancialAccount[]
+  cards         PaymentCard[]
+  transactions  MoneyTransaction[]
+  focusSessions FocusSession[]
+  reviews       WeeklyReview[]
+  interviewAttempts InterviewAttempt[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  expiresAt DateTime
+  token     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(cuid())
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@unique([providerId, accountId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+}
+
+model LifeItem {
+  id          String    @id @default(cuid())
+  userId      String
+  area        String
+  title       String
+  note        String    @default("")
+  dueAt       DateTime?
+  priority    Int       @default(2)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, area, completed])
+  @@index([userId, dueAt])
+}
+
+model Habit {
+  id        String         @id @default(cuid())
+  userId    String
+  title     String
+  color     String         @default("#e8590c")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  checkIns  HabitCheckIn[]
+
+  @@unique([userId, title])
+  @@index([userId, createdAt])
+}
+
+model HabitCheckIn {
+  id        String   @id @default(cuid())
+  habitId   String
+  dayKey    String
+  createdAt DateTime @default(now())
+  habit     Habit    @relation(fields: [habitId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, dayKey])
+  @@index([dayKey])
+}
+
+model Application {
+  id          String   @id @default(cuid())
+  userId      String
+  title       String
+  organization String  @default("")
+  kind        String   @default("University")
+  status      String   @default("Wishlist")
+  deadline    DateTime?
+  url         String   @default("")
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, status])
+  @@index([userId, deadline])
+}
+
+model MoneyCategory {
+  id           String             @id @default(cuid())
+  userId       String
+  name         String
+  color        String             @default("#f08c00")
+  createdAt    DateTime           @default(now())
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions MoneyTransaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model FinancialAccount {
+  id                   String             @id @default(cuid())
+  userId               String
+  name                 String
+  institution          String             @default("")
+  kind                 String             @default("Bank")
+  last4                String             @default("")
+  openingBalanceCents  Int                @default(0)
+  currency             String             @default("BDT")
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards                PaymentCard[]
+  transactions         MoneyTransaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model PaymentCard {
+  id          String             @id @default(cuid())
+  userId      String
+  accountId   String?
+  name        String
+  kind        String             @default("Debit")
+  network     String             @default("")
+  last4       String             @default("")
+  imageData   String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account     FinancialAccount?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  transactions MoneyTransaction[]
+
+  @@index([userId])
+  @@index([accountId])
+}
+
+model MoneyTransaction {
+  id          String            @id @default(cuid())
+  userId      String
+  categoryId  String
+  accountId   String?
+  cardId      String?
+  kind        String
+  amountCents Int
+  description String            @default("")
+  note        String            @default("")
+  occurredAt  DateTime          @default(now())
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  user        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category    MoneyCategory     @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  account     FinancialAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  card        PaymentCard?      @relation(fields: [cardId], references: [id], onDelete: SetNull)
+
+  @@index([userId, occurredAt])
+  @@index([userId, kind])
+  @@index([categoryId])
+  @@index([accountId])
+}
+
+model FocusSession {
+  id              String   @id @default(cuid())
+  userId          String
+  durationSeconds Int
+  taskTitle       String   @default("")
+  completedAt     DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, completedAt])
+}
+
+model WeeklyReview {
+  id        String   @id @default(cuid())
+  userId    String
+  weekStart String
+  wins      String   @default("")
+  lessons   String   @default("")
+  nextFocus String   @default("")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, weekStart])
+}
+
+model InterviewAttempt {
+  id              String   @id @default(cuid())
+  userId          String
+  category        String
+  question        String
+  transcript      String   @default("")
+  wordCount       Int      @default(0)
+  wordsPerMinute  Int      @default(0)
+  fillerCount     Int      @default(0)
+  durationSeconds Int      @default(0)
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
