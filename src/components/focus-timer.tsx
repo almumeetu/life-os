@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Check, CirclePause, CirclePlay, RotateCcw } from "lucide-react";
 import { recordFocusSession } from "@/lib/actions/focus";
+import { formatNumber, translate, type Locale } from "@/lib/i18n";
 
 const presets = [25, 50, 5];
 
-export function FocusTimer({ activeTasks, sessionsToday }: { activeTasks: string[]; sessionsToday: number }) {
+export function FocusTimer({ activeTasks, sessionsToday, locale }: { activeTasks: string[]; sessionsToday: number; locale: Locale }) {
+  const t = (message: string) => translate(locale, message);
   const [minutes, setMinutes] = useState(25);
   const [remaining, setRemaining] = useState(25 * 60);
   const [running, setRunning] = useState(false);
@@ -16,26 +18,7 @@ export function FocusTimer({ activeTasks, sessionsToday }: { activeTasks: string
   const [isSaving, startSaving] = useTransition();
   const completionHandled = useRef(false);
 
-  useEffect(() => {
-    if (!running) return;
-    const timer = window.setInterval(() => setRemaining((value) => Math.max(0, value - 1)), 1000);
-    return () => window.clearInterval(timer);
-  }, [running]);
-
-  useEffect(() => {
-    if (!running || remaining > 0 || completionHandled.current) return;
-    completionHandled.current = true;
-    setRunning(false);
-    playCompletionChime();
-    setMessage("Session complete! Great work. Take a few minutes to reset.");
-    startSaving(async () => {
-      const result = await recordFocusSession({ durationSeconds: minutes * 60, taskTitle });
-      if (result.ok) setSavedCount((count) => count + 1);
-      else setMessage(result.message);
-    });
-  }, [minutes, remaining, running, startSaving, taskTitle]);
-
-  function playCompletionChime() {
+  const playCompletionChime = useCallback(() => {
     try {
       const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (!AudioCtx) return;
@@ -60,7 +43,26 @@ export function FocusTimer({ activeTasks, sessionsToday }: { activeTasks: string
     } catch {
       // Audio autoplay policy
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    if (!running) return;
+    const timer = window.setInterval(() => setRemaining((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [running]);
+
+  useEffect(() => {
+    if (!running || remaining > 0 || completionHandled.current) return;
+    completionHandled.current = true;
+    setRunning(false);
+    playCompletionChime();
+    setMessage(translate(locale, "Session complete! Great work. Take a few minutes to reset."));
+    startSaving(async () => {
+      const result = await recordFocusSession({ durationSeconds: minutes * 60, taskTitle });
+      if (result.ok) setSavedCount((count) => count + 1);
+      else setMessage(translate(locale, result.message));
+    });
+  }, [minutes, playCompletionChime, remaining, running, startSaving, taskTitle, locale]);
 
   function choosePreset(value: number) {
     setRunning(false);
@@ -77,20 +79,20 @@ export function FocusTimer({ activeTasks, sessionsToday }: { activeTasks: string
     setMessage("");
   }
 
-  const clock = `${String(Math.floor(remaining / 60)).padStart(2, "0")}:${String(remaining % 60).padStart(2, "0")}`;
+  const clock = `${formatNumber(locale, Math.floor(remaining / 60), { minimumIntegerDigits: 2 })}:${formatNumber(locale, remaining % 60, { minimumIntegerDigits: 2 })}`;
 
   return <div className="focus-layout">
     <div className="panel focus-timer-panel">
-      <div className="timer-mode">{running ? "FOCUS IN PROGRESS" : "MAKE SPACE TO THINK"}</div>
+      <div className="timer-mode">{t(running ? "FOCUS IN PROGRESS" : "MAKE SPACE TO THINK")}</div>
       <div className="timer-readout" aria-live="polite">{clock}</div>
-      <div className="timer-presets" aria-label="Session length">{presets.map((preset) => <button className={`timer-preset ${minutes === preset ? "active" : ""}`} type="button" key={preset} onClick={() => choosePreset(preset)}>{preset} min</button>)}</div>
-      <label className="focus-task-select"><span>Focus on (optional)</span><select className="select" value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)}><option value="">Choose an open step</option>{activeTasks.map((task) => <option key={task} value={task}>{task}</option>)}</select></label>
-      <div className="quick-actions timer-controls"><button className="button button-primary" type="button" onClick={() => { completionHandled.current = false; setRunning((value) => !value); setMessage(""); }} disabled={isSaving}>{running ? <><CirclePause size={16} />Pause</> : <><CirclePlay size={16} />Start focus</>}</button><button className="button button-secondary" type="button" onClick={reset}><RotateCcw size={14} />Reset</button></div>
+      <div className="timer-presets" aria-label={t("Session length")}>{presets.map((preset) => <button className={`timer-preset ${minutes === preset ? "active" : ""}`} type="button" key={preset} onClick={() => choosePreset(preset)}>{formatNumber(locale, preset)} {t("min")}</button>)}</div>
+      <label className="focus-task-select"><span>{t("Focus on (optional)")}</span><select className="select" value={taskTitle} onChange={(event) => setTaskTitle(event.target.value)}><option value="">{t("Choose an open step")}</option>{activeTasks.map((task) => <option key={task} value={task}>{task}</option>)}</select></label>
+      <div className="quick-actions timer-controls"><button className="button button-primary" type="button" onClick={() => { completionHandled.current = false; setRunning((value) => !value); setMessage(""); }} disabled={isSaving}>{running ? <><CirclePause size={16} />{t("Pause")}</> : <><CirclePlay size={16} />{t("Start focus")}</>}</button><button className="button button-secondary" type="button" onClick={reset}><RotateCcw size={14} />{t("Reset")}</button></div>
       {message && <p className="timer-message" role="status">{message}</p>}
     </div>
     <div className="stack">
-      <div className="metric-card focus-stat-card"><span className="panel-icon"><Check size={16} /></span><small>SESSIONS TODAY</small><b className="metric-value">{savedCount}</b><span className="metric-note">Completed blocks saved to your review.</span></div>
-      <div className="panel"><div className="panel-header"><div><h2 className="panel-title">A calmer focus block</h2><p className="panel-subtitle">Pick one useful thing. Let the rest wait.</p></div></div><ul className="focus-tips"><li>Close extra tabs and put your phone away.</li><li>Take a short break after a 25 or 50 minute block.</li><li>Keep this page open while the timer runs.</li></ul></div>
+      <div className="metric-card focus-stat-card"><span className="panel-icon"><Check size={16} /></span><small>{t("SESSIONS TODAY")}</small><b className="metric-value">{formatNumber(locale, savedCount)}</b><span className="metric-note">{t("Completed blocks saved to your review.")}</span></div>
+      <div className="panel"><div className="panel-header"><div><h2 className="panel-title">{t("A calmer focus block")}</h2><p className="panel-subtitle">{t("Pick one useful thing. Let the rest wait.")}</p></div></div><ul className="focus-tips"><li>{t("Close extra tabs and put your phone away.")}</li><li>{t("Take a short break after a 25 or 50 minute block.")}</li><li>{t("Keep this page open while the timer runs.")}</li></ul></div>
     </div>
   </div>;
 }

@@ -4,8 +4,9 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, LoaderCircle, LogIn, Sparkles, UserPlus } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
+import { translate, type Locale } from "@/lib/i18n";
 
-export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "sign-up"; nextPath: string }) {
+export function AuthForm({ mode: initialMode, nextPath, locale }: { mode: "sign-in" | "sign-up"; nextPath: string; locale: Locale }) {
   const router = useRouter();
   const [mode, setMode] = useState<"sign-in" | "sign-up">(initialMode);
   const [pending, setPending] = useState(false);
@@ -17,6 +18,11 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
   const [showQuickCreate, setShowQuickCreate] = useState(false);
 
   const signingUp = mode === "sign-up";
+  const t = (message: string, values?: Record<string, string | number>) => translate(locale, message, values);
+  const translatedAuthError = (message: string, fallback: string) => {
+    const translated = translate(locale, message);
+    return locale === "bn" && translated === message ? t(fallback) : translated;
+  };
 
   async function handleAuth(emailToUse: string, passwordToUse: string, nameToUse: string, isSignUp: boolean) {
     setPending(true);
@@ -33,7 +39,7 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
         });
 
         if (result.error) {
-          setError(result.error.message || "Could not create account. Please check your details and try again.");
+          setError(translatedAuthError(result.error.message || "Could not create account. Please check your details and try again.", "Could not create account. Please check your details and try again."));
           return;
         }
 
@@ -49,10 +55,10 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
         if (result.error) {
           const msg = result.error.message || "";
           if (msg.toLowerCase().includes("invalid") || msg.toLowerCase().includes("user") || msg.toLowerCase().includes("credential") || !msg) {
-            setError("Incorrect email or password. If you haven't created your account yet, you can create it below.");
+            setError(t("Incorrect email or password. If you haven't created your account yet, you can create it below."));
             setShowQuickCreate(true);
           } else {
-            setError(msg);
+            setError(translatedAuthError(msg, "Could not sign in. Please try again."));
           }
           return;
         }
@@ -61,7 +67,7 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
         router.refresh();
       }
     } catch {
-      setError("We couldn’t reach the server. Please verify your connection and try again.");
+      setError(t("We couldn’t reach the server. Please verify your connection and try again."));
     } finally {
       setPending(false);
     }
@@ -93,8 +99,8 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
           className={`auth-tab ${!signingUp ? "active" : ""}`}
           onClick={() => { setMode("sign-in"); setError(""); setShowQuickCreate(false); }}
         >
-          <LogIn size={15} />
-          <span>Sign In</span>
+          <LogIn size={15} aria-hidden="true" />
+          <span>{t("Sign In")}</span>
         </button>
         <button
           type="button"
@@ -103,15 +109,15 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
           className={`auth-tab ${signingUp ? "active" : ""}`}
           onClick={() => { setMode("sign-up"); setError(""); setShowQuickCreate(false); }}
         >
-          <UserPlus size={15} />
-          <span>Create Account</span>
+          <UserPlus size={15} aria-hidden="true" />
+          <span>{t("Create Account")}</span>
         </button>
       </div>
 
       <form className="auth-form" onSubmit={submit}>
         {signingUp && (
           <label className="field">
-            <span>Full Name</span>
+            <span>{t("Full Name")}</span>
             <input
               name="name"
               autoComplete="name"
@@ -120,13 +126,13 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
               maxLength={80}
               value={nameValue}
               onChange={(e) => setNameValue(e.target.value)}
-              placeholder="e.g. Al Mumeetu Saikat"
+              placeholder={t("e.g. Al Mumeetu Saikat")}
             />
           </label>
         )}
 
         <label className="field">
-          <span>Email Address</span>
+          <span>{t("Email Address")}</span>
           <input
             name="email"
             type="email"
@@ -141,8 +147,8 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
 
         <label className="field">
           <div className="field-label-row">
-            <span>Password</span>
-            <small>{signingUp ? "At least 6 characters" : ""}</small>
+            <span>{t("Password")}</span>
+            <small>{signingUp ? t("At least 6 characters") : ""}</small>
           </div>
           <div className="password-input-wrap">
             <input
@@ -154,13 +160,13 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
               maxLength={128}
               value={passwordValue}
               onChange={(e) => { setPasswordValue(e.target.value); setError(""); }}
-              placeholder={signingUp ? "Choose a secure password" : "Enter your password"}
+              placeholder={t(signingUp ? "Choose a secure password" : "Enter your password")}
             />
             <button
               type="button"
               className="password-toggle-btn"
               onClick={() => setShowPassword((prev) => !prev)}
-              aria-label={showPassword ? "Hide password" : "Show password"}
+              aria-label={t(showPassword ? "Hide password" : "Show password")}
               tabIndex={-1}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
@@ -173,15 +179,15 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
             <p>{error}</p>
             {showQuickCreate && (
               <div className="quick-create-box">
-                <p>New to Life OS with <b>{emailValue || "this email"}</b>?</p>
+                <p>{t("New to Life OS with {email}?", { email: emailValue || t("this email") })}</p>
                 <button
                   type="button"
                   className="button button-primary button-small"
                   onClick={quickCreateAccount}
                   disabled={pending}
                 >
-                  <Sparkles size={13} />
-                  <span>Create account now</span>
+                  <Sparkles size={13} aria-hidden="true" />
+                  <span>{t("Create account now")}</span>
                 </button>
               </div>
             )}
@@ -189,15 +195,15 @@ export function AuthForm({ mode: initialMode, nextPath }: { mode: "sign-in" | "s
         )}
 
         <button className="button button-primary auth-submit" type="submit" disabled={pending}>
-          {pending ? <LoaderCircle size={17} className="spin" /> : null}
-          {pending ? "Please wait…" : signingUp ? "Create account" : "Sign in to workspace"}
-          {!pending && <ArrowRight size={16} />}
+          {pending ? <LoaderCircle size={17} className="spin" aria-hidden="true" /> : null}
+          {pending ? t("Please wait…") : t(signingUp ? "Create account" : "Sign in to workspace")}
+          {!pending && <ArrowRight size={16} aria-hidden="true" />}
         </button>
 
         <p className="auth-helper">
           {signingUp
-            ? "Your workspace is private, secure, and personal to you."
-            : "Your personal data is encrypted and kept private in your workspace."}
+            ? t("Your workspace is private, secure, and personal to you.")
+            : t("Your personal data is encrypted and kept private in your workspace.")}
         </p>
       </form>
     </div>

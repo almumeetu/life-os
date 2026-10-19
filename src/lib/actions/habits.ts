@@ -24,6 +24,7 @@ export async function createHabit(formData: FormData) {
 }
 
 export async function addStarterHabits(_formData: FormData) {
+  void _formData;
   const user = await requireCurrentUser();
   const titles = ["Speak English 20 min", "IELTS practice 30 min", "Walk 30 min", "Code 1 hour", "Read 15 min"];
   await Promise.all(titles.map((title) => prisma.habit.upsert({

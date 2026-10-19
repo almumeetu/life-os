@@ -86,6 +86,7 @@ export async function deleteLifeItem(formData: FormData) {
 }
 
 export async function addStarterItems(areaValue: string, _formData: FormData) {
+  void _formData;
   const user = await requireCurrentUser();
   const area = areaSchema.safeParse(areaValue);
   if (!area.success) messageRedirect("/dashboard", "That area is not available.", true);

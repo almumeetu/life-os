@@ -1,3 +1,5 @@
+import { intlLocale, type Locale } from "@/lib/i18n";
+
 export const LIFE_AREAS = [
   { id: "tasks", label: "Tasks", description: "Plan the next useful step.", icon: "CheckSquare", color: "orange" },
   { id: "abroad", label: "Study abroad", description: "Universities, exams, documents and visa steps.", icon: "Globe2", color: "blue" },
@@ -46,8 +48,8 @@ export function getArea(area: string) {
   return LIFE_AREAS.find((entry) => entry.id === area);
 }
 
-export function formatMoney(cents: number, currency = "BDT") {
-  return new Intl.NumberFormat("en-BD", {
+export function formatMoney(cents: number, currency = "BDT", locale: Locale = "en") {
+  return new Intl.NumberFormat(intlLocale(locale), {
     style: "currency",
     currency,
     maximumFractionDigits: 2,
