@@ -1,114 +1,88 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, CalendarDays, Check, CheckSquare, CircleDollarSign, Clock3, FlaskConical, Flame, Globe2, HeartPulse, Layers3, Lightbulb, Sparkles, Target, WalletCards } from "lucide-react";
+import { ArrowRight, BookOpenCheck, BriefcaseBusiness, Check, FileText, Globe2, Languages, Mic, Sparkles } from "lucide-react";
 import { EmptyState, MetricCard, PageHeader, Panel } from "@/components/ui";
-import { LIFE_AREAS } from "@/lib/constants";
-import { formatMoney } from "@/lib/constants";
 import { toggleLifeItem } from "@/lib/actions/life";
 import { prisma } from "@/lib/prisma";
 import { requireCurrentUser } from "@/lib/session";
 import { getLocale } from "@/lib/locale-server";
 import { formatDate, formatNumber, translate } from "@/lib/i18n";
+import { SPEAKING_LESSONS } from "@/lib/speaking-course";
 
-const areaIcons = {
-  tasks: CheckSquare,
-  abroad: Globe2,
-  career: BriefcaseBusiness,
-  research: FlaskConical,
-  goals: Target,
-  money: WalletCards,
-  health: HeartPulse,
-  ideas: Lightbulb,
-} as const;
-
-function startOfDay(date: Date) {
-  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
-}
+const modules = [
+  { href: "/dashboard/learn", title: "Read & learn", description: "Read your books with a simple Bangla study guide.", icon: BookOpenCheck, tone: "orange" },
+  { href: "/dashboard/speaking", title: "English speaking", description: "Follow the daily course and hear spoken feedback.", icon: Languages, tone: "green" },
+  { href: "/dashboard/interview", title: "Interview prep", description: "Rehearse job and university interview answers.", icon: Mic, tone: "purple" },
+  { href: "/dashboard/ielts", title: "IELTS prep", description: "Set a target band and log practice for each skill.", icon: BookOpenCheck, tone: "blue" },
+  { href: "/dashboard/jobs", title: "Job search", description: "Keep roles, follow-ups and application stages together.", icon: BriefcaseBusiness, tone: "orange" },
+  { href: "/dashboard/study-abroad", title: "Study abroad", description: "Track requirements, universities and scholarships.", icon: Globe2, tone: "blue" },
+  { href: "/dashboard/documents", title: "Documents", description: "Keep private copies of your application documents.", icon: FileText, tone: "slate" },
+];
 
 export default async function DashboardPage() {
   const [user, locale] = await Promise.all([requireCurrentUser(), getLocale()]);
   const t = (message: string, values?: Record<string, string | number>) => translate(locale, message, values);
   const now = new Date();
-  const today = startOfDay(now);
-  const weekStart = new Date(today);
-  weekStart.setUTCDate(weekStart.getUTCDate() - ((weekStart.getUTCDay() + 6) % 7));
-  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1));
+  const today = new Date(`${now.toISOString().slice(0, 10)}T00:00:00.000Z`);
+  const firstName = user.name.trim().split(/\s+/)[0] || t("there");
 
-  const [openTasks, dueApplications, completedThisWeek, totalThisWeek, habits, checkedToday, income, expenses, focusSessions, areaCounts] = await Promise.all([
-    prisma.lifeItem.findMany({ where: { userId: user.id, completed: false }, orderBy: [{ priority: "asc" }, { dueAt: "asc" }, { createdAt: "desc" }], take: 6 }),
-    prisma.application.findMany({ where: { userId: user.id, deadline: { gte: today }, status: { notIn: ["Offer", "Rejected"] } }, orderBy: { deadline: "asc" }, take: 4 }),
-    prisma.lifeItem.count({ where: { userId: user.id, completed: true, completedAt: { gte: weekStart } } }),
-    prisma.lifeItem.count({ where: { userId: user.id, createdAt: { gte: weekStart } } }),
-    prisma.habit.count({ where: { userId: user.id } }),
-    prisma.habitCheckIn.count({ where: { habit: { userId: user.id }, dayKey: today.toISOString().slice(0, 10) } }),
-    prisma.moneyTransaction.aggregate({ where: { userId: user.id, kind: "Income", occurredAt: { gte: monthStart, lt: nextMonth } }, _sum: { amountCents: true } }),
-    prisma.moneyTransaction.aggregate({ where: { userId: user.id, kind: "Expense", occurredAt: { gte: monthStart, lt: nextMonth } }, _sum: { amountCents: true } }),
-    prisma.focusSession.count({ where: { userId: user.id, completedAt: { gte: weekStart } } }),
-    prisma.lifeItem.groupBy({ by: ["area"], where: { userId: user.id, completed: false }, _count: { _all: true } }),
+  const [goal, ieltsSessions, speakingSessions, speakingLessonAttempts, interviewSessions, activeJobs, nextSteps, deadlines] = await Promise.all([
+    prisma.ieltsGoal.findUnique({ where: { userId: user.id } }),
+    prisma.ieltsPractice.count({ where: { userId: user.id } }),
+    prisma.speakingAttempt.count({ where: { userId: user.id } }),
+    prisma.speakingAttempt.findMany({ where: { userId: user.id, topic: { in: SPEAKING_LESSONS.map((lesson) => lesson.id) } }, select: { topic: true }, distinct: ["topic"] }),
+    prisma.interviewAttempt.count({ where: { userId: user.id, category: "job" } }),
+    prisma.application.count({ where: { userId: user.id, kind: "Job", status: { notIn: ["Offer", "Rejected"] } } }),
+    prisma.lifeItem.findMany({ where: { userId: user.id, area: "abroad", completed: false }, orderBy: [{ dueAt: "asc" }, { priority: "asc" }, { createdAt: "asc" }], take: 5 }),
+    prisma.application.findMany({ where: { userId: user.id, kind: { in: ["Job", "University", "Scholarship"] }, deadline: { gte: today }, status: { notIn: ["Offer", "Rejected"] } }, orderBy: { deadline: "asc" }, take: 5 }),
   ]);
+  const completedSpeakingIds = new Set(speakingLessonAttempts.map((attempt) => attempt.topic));
+  const nextSpeakingLesson = SPEAKING_LESSONS.find((lesson) => !completedSpeakingIds.has(lesson.id));
 
-  const firstName = user.name.trim().split(/\s+/)[0] || "there";
-  const completedRatio = totalThisWeek ? Math.round(completedThisWeek / totalThisWeek * 100) : 0;
   const dateLabel = formatDate(locale, now, { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Dhaka" });
-  const areaCountMap = new Map(areaCounts.map((entry) => [entry.area, entry._count._all]));
   const greeting = t(now.getHours() < 12 ? "Good morning" : now.getHours() < 17 ? "Good afternoon" : "Good evening");
 
   return <>
-    <PageHeader eyebrow={t("YOUR PERSONAL WORKSPACE")} title={`${greeting}, ${firstName}`} description={`${dateLabel} · ${t("Take the next step at your own pace.")}`} actions={<Link className="button button-primary" href="/dashboard/areas/tasks">{t("Plan a task")} <ArrowRight size={15} aria-hidden="true" /></Link>} />
+    <PageHeader eyebrow={t("YOUR ENGLISH SPEAKING WORKSPACE")} title={`${greeting}, ${firstName}`} description={`${dateLabel} · ${t("Choose one useful next step for your future.")}`} />
 
-    <section className="welcome-banner">
+    <section className="welcome-banner focused-welcome speaking-welcome">
       <div>
-        <span className="welcome-eyebrow"><Sparkles size={13} aria-hidden="true" /> {t("A LITTLE PROGRESS ADDS UP · প্রতিদিনের ছোট অগ্রগতি")}</span>
-        <h2>{t("Make today a little clearer.")}</h2>
-        <p>{t("Choose one useful next step. Your plans, habits, money and career stay organized in one private place.")}</p>
+        <span className="welcome-eyebrow"><Sparkles size={13} aria-hidden="true" /> {t("YOUR DAILY ENGLISH SPEAKING PLAN")}</span>
+        <h2>{t("Speak English with confidence, one lesson at a time.")}</h2>
+        <p>{t("Listen to a clear English model, practise out loud, and hear spoken feedback after every answer.")}</p>
         <div className="welcome-actions">
-          <Link className="button welcome-button" href="/dashboard/areas/tasks">{t("Open my tasks")} <ArrowRight size={14} aria-hidden="true" /></Link>
-          <Link className="welcome-link" href="/dashboard/focus">{t("Start a focus session")}</Link>
-          <Link className="welcome-link" href="/dashboard/interview">{t("Practice interview ↗")}</Link>
+          <Link className="button welcome-button" href="/dashboard/learn">{t("Open book and Bangla guide")} <ArrowRight size={14} aria-hidden="true" /></Link>
+          <Link className="button welcome-button" href="/dashboard/speaking">{nextSpeakingLesson ? t("Continue speaking practice") : t("Review speaking course")} <ArrowRight size={14} aria-hidden="true" /></Link>
+          <Link className="welcome-link" href="/dashboard/ielts">{t("Open IELTS speaking practice")}</Link>
         </div>
       </div>
       <div className="welcome-progress">
-        <span className="welcome-progress-icon"><Target size={18} /></span>
-        <small>{t("THIS WEEK")}</small>
-        <b>{formatNumber(locale, completedRatio)}<em>%</em></b>
-        <span>{formatNumber(locale, completedThisWeek)} {t(completedThisWeek === 1 ? "step completed" : "steps completed")}</span>
-        <div className="progress-track"><i style={{ width: `${completedRatio}%` }} /></div>
+        <span className="welcome-progress-icon"><Languages size={18} /></span>
+        <small>{t("STEP-BY-STEP SPEAKING COURSE")}</small>
+        <b>{formatNumber(locale, completedSpeakingIds.size)}<em> / {formatNumber(locale, SPEAKING_LESSONS.length)}</em></b>
+        <span>{nextSpeakingLesson ? t(nextSpeakingLesson.title) : t("All lessons completed")}</span>
+        <div className="progress-track"><i style={{ width: `${Math.round(completedSpeakingIds.size / SPEAKING_LESSONS.length * 100)}%` }} /></div>
       </div>
       <div className="welcome-spark spark-one">✳</div><div className="welcome-spark spark-two">✦</div>
     </section>
 
     <div className="metric-grid">
-      <MetricCard label={t("Open next steps")} value={formatNumber(locale, openTasks.length)} note={t("Across your life areas")} icon={<Layers3 size={17} aria-hidden="true" />} />
-      <MetricCard label={t("Habits checked today")} value={`${formatNumber(locale, checkedToday)} / ${formatNumber(locale, habits)}`} note={t("A small check-in counts")} icon={<Flame size={17} aria-hidden="true" />} />
-      <MetricCard label={t("Focus sessions this week")} value={formatNumber(locale, focusSessions)} note={t("Keep building momentum")} icon={<Clock3 size={17} aria-hidden="true" />} />
-      <MetricCard label={t("Spent this month")} value={formatMoney(expenses._sum.amountCents || 0, "BDT", locale)} note={t("See your money overview")} icon={<CircleDollarSign size={17} aria-hidden="true" />} />
+      <MetricCard label={t("Speaking lessons complete")} value={`${formatNumber(locale, completedSpeakingIds.size)} / ${formatNumber(locale, SPEAKING_LESSONS.length)}`} note={t("{count} speaking practice sessions", { count: formatNumber(locale, speakingSessions) })} icon={<Languages size={17} />} />
+      <MetricCard label={t("IELTS target band")} value={goal ? goal.targetBand.toFixed(1) : "—"} note={t("{count} practice sessions", { count: formatNumber(locale, ieltsSessions) })} icon={<BookOpenCheck size={17} />} />
+      <MetricCard label={t("Interview answers saved")} value={formatNumber(locale, interviewSessions)} note={t("Job interview practice")} icon={<Mic size={17} />} />
+      <MetricCard label={t("Active job applications")} value={formatNumber(locale, activeJobs)} note={t("Roles still in progress")} icon={<BriefcaseBusiness size={17} />} />
     </div>
 
-    <div className="dashboard-grid">
-      <div className="stack">
-        <Panel title={t("Your next steps")} subtitle={t("A short, prioritized view of what is still open")} action={<Link className="text-link" href="/dashboard/areas/tasks">{t("View tasks")} <ArrowRight size={13} aria-hidden="true" /></Link>}>
-          {openTasks.length ? <div className="list">{openTasks.map((task) => <div className="list-row" key={task.id}><form action={toggleLifeItem}><input type="hidden" name="id" value={task.id} /><button className="check-button" type="submit" aria-label={t("Complete {title}", { title: task.title })}><Check size={12} aria-hidden="true" /></button></form><div className="list-main"><b>{t(task.title)}</b><small>{t(LIFE_AREAS.find((area) => area.id === task.area)?.label || "Task")}{task.dueAt ? ` · ${t("Due {date}", { date: formatDate(locale, task.dueAt, { day: "numeric", month: "short", timeZone: "Asia/Dhaka" }) })}` : ""}</small></div><span className={`priority-dot priority-${task.priority === 1 ? "high" : task.priority === 3 ? "low" : "normal"}`} title={t(task.priority === 1 ? "High priority" : task.priority === 3 ? "Low priority" : "Normal priority")} /></div>)}</div> : <EmptyState title={t("Your list is clear")} description={t("Add one next step to make progress on something that matters.")} icon={<Check size={17} aria-hidden="true" />} />}
-        </Panel>
+    <Panel title={t("Your preparation areas")} subtitle={t("Open one focused area and continue where you left off.")}>
+      <div className="area-grid preparation-grid">{modules.map(({ href, title, description, icon: Icon, tone }) => <Link className="area-card" href={href} key={href}><span className={`area-card-icon tone-${tone}`} aria-hidden="true"><Icon size={19} strokeWidth={2.1} /></span><b>{t(title)}</b><small>{t(description)}</small></Link>)}</div>
+    </Panel>
 
-        <Panel title={t("Life areas")} subtitle={t("Open an area to add, edit and complete its steps")}>
-          <div className="area-grid">{LIFE_AREAS.map((area) => { const AreaIcon = areaIcons[area.id]; const count = areaCountMap.get(area.id) || 0; return <Link className="area-card" href={`/dashboard/areas/${area.id}`} key={area.id}><span className={`area-card-icon tone-${area.color}`} aria-hidden="true"><AreaIcon size={19} strokeWidth={2.1} /></span><b>{t(area.label)}</b><small>{formatNumber(locale, count)} {t(count === 1 ? "open step" : "open steps")}</small></Link>; })}</div>
-        </Panel>
-      </div>
-
-      <div className="stack">
-        <Panel title={t("Upcoming deadlines")} subtitle={t("Applications and important dates")} action={<Link className="text-link" href="/dashboard/applications">{t("Open tracker")} <ArrowRight size={13} aria-hidden="true" /></Link>}>
-          {dueApplications.length ? <div className="list">{dueApplications.map((application) => <div className="list-row" key={application.id}><span className="deadline-icon" aria-hidden="true"><CalendarDays size={17} /></span><div className="list-main"><b>{application.title}</b><small>{application.organization || t(application.kind)}</small></div><span className="list-meta">{application.deadline ? formatDate(locale, application.deadline, { day: "numeric", month: "short", timeZone: "Asia/Dhaka" }) : "—"}</span></div>)}</div> : <EmptyState title={t("No deadlines coming up")} description={t("Add a university, job or scholarship to keep the next important date visible.")} icon={<CalendarDays size={17} aria-hidden="true" />} />}
-        </Panel>
-
-        <Panel title={t("Money snapshot")} subtitle={formatDate(locale, now, { month: "long", year: "numeric" })} action={<Link className="text-link" href="/dashboard/money">{t("Details")} <ArrowRight size={13} aria-hidden="true" /></Link>}>
-          <div className="money-mini"><span><small>{t("INCOME")}</small><b className="positive-value">{formatMoney(income._sum.amountCents || 0, "BDT", locale)}</b></span><span><small>{t("EXPENSES")}</small><b className="negative-value">{formatMoney(expenses._sum.amountCents || 0, "BDT", locale)}</b></span></div>
-          <Link className="subtle-action" href="/dashboard/money?tab=transactions">{t("＋ Add a transaction")}</Link>
-        </Panel>
-
-        <Panel title={t("A gentle reminder")} subtitle={t("You do not have to do everything today")}>
-          <div className="reminder-box"><span aria-hidden="true">✦</span><p>{t("Start with one action that will make tomorrow easier.")}</p></div>
-        </Panel>
-      </div>
+    <div className="dashboard-grid focused-dashboard-grid">
+      <Panel title={t("Next study-abroad steps")} subtitle={t("A short view of your open requirements.")} action={<Link className="text-link" href="/dashboard/study-abroad">{t("View checklist")} <ArrowRight size={13} /></Link>}>
+        {nextSteps.length ? <div className="list">{nextSteps.map((item) => <div className="list-row" key={item.id}><form action={toggleLifeItem}><input type="hidden" name="id" value={item.id} /><button className="check-button" type="submit" aria-label={t("Complete {title}", { title: item.title })}><Check size={12} /></button></form><div className="list-main"><b>{t(item.title)}</b><small>{item.dueAt ? t("Due {date}", { date: formatDate(locale, item.dueAt, { day: "numeric", month: "short", timeZone: "Asia/Dhaka" }) }) : t("Study abroad requirement")}</small></div></div>)}</div> : <EmptyState title={t("Your checklist is clear")} description={t("Add a study-abroad requirement when you are ready.")} icon={<Check size={17} />} />}
+      </Panel>
+      <Panel title={t("Upcoming dates")} subtitle={t("Jobs, universities and scholarships.")} action={<Link className="text-link" href="/dashboard/jobs">{t("Open job search")} <ArrowRight size={13} /></Link>}>
+        {deadlines.length ? <div className="list">{deadlines.map((item) => <div className="list-row" key={item.id}><span className="deadline-icon"><BriefcaseBusiness size={16} /></span><div className="list-main"><b>{item.title}</b><small>{item.organization || t(item.kind)}</small></div><span className="list-meta">{item.deadline && formatDate(locale, item.deadline, { day: "numeric", month: "short", timeZone: "Asia/Dhaka" })}</span></div>)}</div> : <EmptyState title={t("No upcoming dates")} description={t("Add an application deadline to keep it visible here.")} icon={<BriefcaseBusiness size={17} />} />}
+      </Panel>
     </div>
   </>;
 }

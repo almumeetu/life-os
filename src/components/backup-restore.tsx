@@ -6,7 +6,7 @@ import type { ChangeEvent } from "react";
 import { useRouter } from "next/navigation";
 import { translate, type Locale } from "@/lib/i18n";
 
-const maxBackupBytes = 25 * 1024 * 1024;
+const maxBackupBytes = 50 * 1024 * 1024;
 
 export function BackupRestore({ locale }: { locale: Locale }) {
   const router = useRouter();
@@ -21,7 +21,7 @@ export function BackupRestore({ locale }: { locale: Locale }) {
     event.target.value = "";
     setMessage("");
     if (file.size > maxBackupBytes) {
-      setMessage(t("Choose a backup file that is 25 MB or smaller."));
+      setMessage(t("Choose a backup file that is 50 MB or smaller."));
       return;
     }
     if (!window.confirm(t("Restoring replaces the personal data currently in this workspace with the backup. Continue?"))) return;
@@ -47,7 +47,7 @@ export function BackupRestore({ locale }: { locale: Locale }) {
   return <div className="backup-actions">
     <a className="button button-secondary" href="/api/backup"><Download size={14} />{t("Download backup")}</a>
     <button className="button button-secondary" type="button" disabled={busy} onClick={() => input.current?.click()}>{busy ? <LoaderCircle className="spin" size={14} /> : <FileUp size={14} />}{busy ? t("Restoring…") : t("Restore backup")}</button>
-    <input ref={input} className="visually-hidden" type="file" accept="application/json,.json" onChange={restore} aria-label={t("Choose a Life OS backup JSON file")} />
+    <input ref={input} className="visually-hidden" type="file" accept="application/json,.json" onChange={restore} aria-label={t("Choose a Preparation Hub backup JSON file")} />
     {message && <p className="backup-message" role="status">{message}</p>}
   </div>;
 }

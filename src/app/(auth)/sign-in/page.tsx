@@ -18,33 +18,33 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
     <main className="auth-page">
       <section className="auth-panel">
         <div className="auth-brand-row">
-          <Link className="brand" href="/sign-in"><span className="brand-mark">L</span> Life OS</Link>
+          <Link className="brand" href="/sign-in"><span className="brand-mark">P</span> {t("Preparation Hub")}</Link>
           <div className="auth-header-actions"><LanguageToggle locale={locale} /><ThemeToggle locale={locale} /></div>
         </div>
         <div className="auth-copy">
-          <span className="eyebrow">{t("YOUR PERSONAL WORKSPACE · ব্যক্তিগত ওয়ার্কস্পেস")}</span>
-          <h1>{t("Make room for what matters.")}</h1>
-          <p>{t("One calm place to plan your next step, keep your routines and see your progress.")}</p>
+          <span className="eyebrow">{t("YOUR PREPARATION WORKSPACE")}</span>
+          <h1>{t("Get ready for your next step.")}</h1>
+          <p>{t("Prepare for interviews and IELTS, practise English, search for jobs and organize your study-abroad plans.")}</p>
         </div>
         <AuthForm mode="sign-in" nextPath={nextPath} locale={locale} />
-        <div className="auth-footnote">{t("Your personal data is encrypted & protected behind your account.")}</div>
+        <div className="auth-footnote">{t("Your workspace is linked to your account. Personal documents are only downloadable after sign-in.")}</div>
       </section>
-      <aside className="auth-art" aria-label={t("Life OS feature overview")}>
+      <aside className="auth-art" aria-label={t("Preparation Hub feature overview")}>
         <div className="art-orb art-orb-one" />
         <div className="art-orb art-orb-two" />
-        <div className="art-note note-top"><span aria-hidden="true">✦</span><div><b>{t("A little progress, every day")}</b><small>{t("Habits that add up over time")}</small></div></div>
+        <div className="art-note note-top"><span aria-hidden="true">✦</span><div><b>{t("Prepare with a clear plan")}</b><small>{t("Practise a little every day")}</small></div></div>
         <div className="art-dashboard">
           <div className="art-dash-heading"><span>{formatDate(locale, new Date(), { weekday: "long", day: "numeric", month: "long", timeZone: "Asia/Dhaka" }).toLocaleUpperCase(locale === "bn" ? "bn-BD" : "en-BD")}</span><span className="avatar-dot">S</span></div>
-          <div className="art-greeting">{t("A clearer week")}<br /><em>{t("starts here.")}</em></div>
-          <div className="art-progress-label"><span>{t("Weekly focus")}</span><b>68%</b></div>
+          <div className="art-greeting">{t("Your next opportunity")}<br /><em>{t("starts here.")}</em></div>
+          <div className="art-progress-label"><span>{t("Preparation progress")}</span><b>68%</b></div>
           <div className="art-progress"><i /></div>
           <div className="art-tasks">
-            <div><span className="fake-check checked" aria-hidden="true">✓</span><span>{t("Review study shortlist")}</span><small>{t("DONE")}</small></div>
-            <div><span className="fake-check" aria-hidden="true" /><span>{t("Prepare for IELTS")}</span><small>{t("TODAY")}</small></div>
-            <div><span className="fake-check" aria-hidden="true" /><span>{t("Take a proper walk")}</span><small>7:00 PM</small></div>
+            <div><span className="fake-check checked" aria-hidden="true">✓</span><span>{t("Practise an interview answer")}</span><small>{t("DONE")}</small></div>
+            <div><span className="fake-check" aria-hidden="true" /><span>{t("Complete one IELTS task")}</span><small>{t("TODAY")}</small></div>
+            <div><span className="fake-check" aria-hidden="true" /><span>{t("Follow up on a job")}</span><small>{t("NEXT")}</small></div>
           </div>
         </div>
-        <div className="art-note note-bottom"><span aria-hidden="true">↗</span><div><b>{t("Life, in one view")}</b><small>{t("Plans · Money · Momentum")}</small></div></div>
+        <div className="art-note note-bottom"><span aria-hidden="true">↗</span><div><b>{t("Keep moving forward")}</b><small>{t("English · Career · Study")}</small></div></div>
       </aside>
     </main>
   );

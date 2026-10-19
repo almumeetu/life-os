@@ -16,15 +16,3 @@ export function dateFromField(value: string) {
   const date = new Date(`${value}T12:00:00.000Z`);
   return Number.isNaN(date.getTime()) ? null : date;
 }
-
-export function moneyToCents(value: string) {
-  const amount = Number(value);
-  if (!Number.isFinite(amount) || amount <= 0 || amount > 20_000_000) return null;
-  return Math.round(amount * 100);
-}
-
-export function signedMoneyToCents(value: string) {
-  const amount = Number(value || 0);
-  if (!Number.isFinite(amount) || Math.abs(amount) > 20_000_000) return null;
-  return Math.round(amount * 100);
-}

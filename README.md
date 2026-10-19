@@ -1,18 +1,22 @@
-# Saikat’s Life OS
+# Preparation Hub
 
-A private, full-stack personal workspace built with Next.js App Router, React, PostgreSQL, Prisma and Better Auth. The interface keeps the original warm Life OS visual direction while putting each part of the workflow in its own module.
+A private workspace for interview preparation, IELTS practice, English speaking, job search, study-abroad planning and personal documents. Built with Next.js App Router, React, PostgreSQL, Prisma and Better Auth.
 
 ## What is included
 
-- Email and password sign-up/sign-in, protected dashboard routes and per-user data ownership.
-- Overview, task and life-area lists, habits and check-ins, application stages, interview practice, focus timer and weekly review.
-- Money overview, transaction history, custom categories, bank/cash/mobile-wallet accounts, saved cards and optional card images.
-- JSON backup and full workspace restore from Settings. Restore is validated and applied in a single database transaction.
-- Responsive navigation, forms, empty states, feedback notices and mobile layouts.
+- Email and password sign-up/sign-in with user-scoped records.
+- Interview practice for job and university questions, with voice or text answers and saved transcripts.
+- IELTS goal and exam date, plus practice logs for Listening, Reading, Writing and Speaking.
+- English speaking prompts with optional browser speech recognition, a timer, transcript review and saved practice history.
+- Bangla beginner reading room at `/dashboard/learn`: original book pages, zoom, browser bookmarks and notes, a four-step daily routine, seven starter explanations, and record/replay/download for the learner's own voice.
+- Job tracker for roles, company names, links, stages, follow-up dates and notes.
+- Study-abroad checklist for requirements, deadlines and official source links, plus university and scholarship tracking.
+- Personal document storage for PDF, Word, JPG, PNG and WebP files. Each file can be up to 5 MB and the account limit is 15 MB.
+- JSON backup and restore for saved records and document contents.
 
 ## Local setup
 
-Requirements: Node.js 20.9 or newer, npm, and Docker with Docker Compose. A PostgreSQL 16+ server can be used instead of Docker.
+Requirements: Node.js 20.9 or newer, npm, and Docker with Docker Compose. You can use a PostgreSQL 16+ server instead.
 
 ```bash
 npm run setup:env
@@ -22,9 +26,23 @@ npm run db:deploy
 npm run dev
 ```
 
-Open `http://localhost:3000`, create an account, then add your own data. `npm run setup:env` creates a local `.env` and generates a strong Better Auth secret. It never overwrites an existing `.env`.
+Open `http://localhost:3000` and create an account. `npm run setup:env` creates `.env` with a strong Better Auth secret and never overwrites an existing `.env`.
 
-The default Compose database is for local development only. If you already run PostgreSQL, update `DATABASE_URL` in `.env` and skip the Docker command.
+The default Compose database is for local development only. If PostgreSQL is already running, point `DATABASE_URL` in `.env` to that database and skip the Docker command.
+
+### Learning book files
+
+The supplied books are prepared locally in `.local/learning-books/` (ignored by Git). All 104 Spoken English pages and 352 IELTS pages are served through an authenticated route; they are not public assets. Use the sidebar **Read & learn / বই পড়ে শিখি** to open them.
+
+To prepare them on another server, install Poppler (`pdfinfo`, `pdftoppm`) and run:
+
+```bash
+node scripts/prepare-learning-books.mjs '/path/to/spoken.pdf' '/path/to/ielts.pdf'
+```
+
+The script copies the originals and renders JPEG pages. Alternatively, copy the prepared folder to persistent server storage and set `LEARNING_BOOKS_DIR` to its absolute path. Poppler is only needed during preparation. The assets are shared learning material for signed-in workspace users; deploy them only where those users should have access. They are not included in JSON account backups. A deployment without this folder shows a missing-book message and keeps the beginner exercises available.
+
+Reader position and notes are scoped to the signed-in user in this browser's local storage, not synced to the database. Speaking/IELTS course progress continues to use existing account records. Voice replay uses browser MediaRecorder, requires microphone permission on HTTPS or localhost, and keeps audio only until the page is left; download it to retain a copy. It does not upload audio or read scanned PDF text aloud. English example playback uses the device's text-to-speech voice.
 
 ## Useful commands
 
@@ -32,26 +50,26 @@ The default Compose database is for local development only. If you already run P
 npm run dev          # Generate the Prisma client and start Next.js
 npm run typecheck    # Check TypeScript
 npm run lint         # Run ESLint
-npm run db:push      # Apply the current Prisma schema to a development database
+npm run db:deploy    # Apply committed Prisma migrations
 npm run db:studio    # Open Prisma Studio
-npm run build        # Generate Prisma client and build the production app
+npm run build        # Generate Prisma client and build the app
 npm run start        # Serve the production build
 ```
 
-For a migration-based release, create and review a Prisma migration in development, commit `prisma/migrations`, and run `npm run db:deploy` as the release step. Keep `db:push` for local development and disposable environments.
+For a migration-based release, create and review the migration in development, commit `prisma/migrations`, and run `npm run db:deploy` before starting the new app version.
 
 ## Configuration
 
 | Variable | Purpose |
 | --- | --- |
 | `DATABASE_URL` | PostgreSQL connection string used by Prisma 7 and the `pg` adapter. |
-| `BETTER_AUTH_SECRET` | At least 32 characters; `setup:env` creates a random local secret. Use a secret manager in production. |
-| `BETTER_AUTH_URL` | The canonical base URL of the app, such as `https://life.example.com` in production. |
+| `BETTER_AUTH_SECRET` | At least 32 characters. `setup:env` creates a random local secret; use a secret manager in production. |
+| `BETTER_AUTH_URL` | The app’s canonical base URL, such as `https://life.example.com` in production. |
 
-For production, use a managed PostgreSQL database, set the variables in the hosting provider’s secret manager, serve over HTTPS, and run `npm run db:deploy` before starting the new application version. Do not reuse the local database credentials or commit `.env`.
+For production, use a managed PostgreSQL database, set secrets in the hosting provider, serve over HTTPS, and run `npm run db:deploy` before starting a new app version. Do not commit `.env` or reuse local database credentials.
 
-## Data and privacy notes
+## Data and privacy
 
-Every read and write is scoped to the signed-in user. Protected pages, server actions and the backup endpoint validate the session. Passwords and sessions are not included in exports. Card records are for labels, account links, last four digits and an optional image; the app does not ask for a full card number or CVV. Crop those details out of an uploaded image before saving it.
+Every feature query is scoped to the signed-in user. Personal documents are stored in PostgreSQL and downloads require a valid session. The app does not store speaking audio; it saves a transcript only when the user chooses to save practice. Browser speech recognition is provided by the browser and may use its own speech service.
 
-Speech practice uses browser speech recognition when available and supports typing as a fallback. Saved transcripts are stored with the user’s workspace and included in backups.
+Backups include document contents, encoded inside the JSON file. Keep downloaded backups private. Passwords and sign-in sessions are excluded.

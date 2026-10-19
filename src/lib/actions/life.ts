@@ -18,7 +18,7 @@ const itemSchema = z.object({
 });
 
 function areaPath(area: string) {
-  return `/dashboard/areas/${area}`;
+  return area === "abroad" ? "/dashboard/study-abroad" : "/dashboard";
 }
 
 export async function createLifeItem(formData: FormData) {

@@ -8,25 +8,29 @@ datasource db {
 }
 
 model User {
-  id            String             @id @default(cuid())
-  name          String
-  email         String             @unique
-  emailVerified Boolean            @default(false)
-  image         String?
-  createdAt     DateTime           @default(now())
-  updatedAt     DateTime           @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  lifeItems     LifeItem[]
-  habits        Habit[]
-  applications  Application[]
-  categories    MoneyCategory[]
-  bankAccounts  FinancialAccount[]
-  cards         PaymentCard[]
-  transactions  MoneyTransaction[]
-  focusSessions FocusSession[]
-  reviews       WeeklyReview[]
+  id                String             @id @default(cuid())
+  name              String
+  email             String             @unique
+  emailVerified     Boolean            @default(false)
+  image             String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  sessions          Session[]
+  accounts          Account[]
+  lifeItems         LifeItem[]
+  habits            Habit[]
+  applications      Application[]
+  categories        MoneyCategory[]
+  bankAccounts      FinancialAccount[]
+  cards             PaymentCard[]
+  transactions      MoneyTransaction[]
+  focusSessions     FocusSession[]
+  reviews           WeeklyReview[]
   interviewAttempts InterviewAttempt[]
+  ieltsGoal         IeltsGoal?
+  ieltsPractices    IeltsPractice[]
+  speakingAttempts  SpeakingAttempt[]
+  documents         PersonalDocument[]
 }
 
 model Session {
@@ -59,8 +63,8 @@ model Account {
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
 
-  @@index([userId])
   @@unique([providerId, accountId])
+  @@index([userId])
 }
 
 model Verification {
@@ -118,18 +122,18 @@ model HabitCheckIn {
 }
 
 model Application {
-  id          String   @id @default(cuid())
-  userId      String
-  title       String
-  organization String  @default("")
-  kind        String   @default("University")
-  status      String   @default("Wishlist")
-  deadline    DateTime?
-  url         String   @default("")
-  note        String   @default("")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id           String    @id @default(cuid())
+  userId       String
+  title        String
+  organization String    @default("")
+  kind         String    @default("University")
+  status       String    @default("Wishlist")
+  deadline     DateTime?
+  url          String    @default("")
+  note         String    @default("")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, status])
   @@index([userId, deadline])
@@ -149,37 +153,37 @@ model MoneyCategory {
 }
 
 model FinancialAccount {
-  id                   String             @id @default(cuid())
-  userId               String
-  name                 String
-  institution          String             @default("")
-  kind                 String             @default("Bank")
-  last4                String             @default("")
-  openingBalanceCents  Int                @default(0)
-  currency             String             @default("BDT")
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cards                PaymentCard[]
-  transactions         MoneyTransaction[]
+  id                  String             @id @default(cuid())
+  userId              String
+  name                String
+  institution         String             @default("")
+  kind                String             @default("Bank")
+  last4               String             @default("")
+  openingBalanceCents Int                @default(0)
+  currency            String             @default("BDT")
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  user                User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cards               PaymentCard[]
+  transactions        MoneyTransaction[]
 
   @@unique([userId, name])
   @@index([userId])
 }
 
 model PaymentCard {
-  id          String             @id @default(cuid())
-  userId      String
-  accountId   String?
-  name        String
-  kind        String             @default("Debit")
-  network     String             @default("")
-  last4       String             @default("")
-  imageData   String?
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account     FinancialAccount?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
+  id           String             @id @default(cuid())
+  userId       String
+  accountId    String?
+  name         String
+  kind         String             @default("Debit")
+  network      String             @default("")
+  last4        String             @default("")
+  imageData    String?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account      FinancialAccount?  @relation(fields: [accountId], references: [id], onDelete: SetNull)
   transactions MoneyTransaction[]
 
   @@index([userId])
@@ -247,6 +251,57 @@ model InterviewAttempt {
   durationSeconds Int      @default(0)
   createdAt       DateTime @default(now())
   user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model IeltsGoal {
+  id         String    @id @default(cuid())
+  userId     String    @unique
+  targetBand Float     @default(7.0)
+  examDate   DateTime?
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model IeltsPractice {
+  id              String   @id @default(cuid())
+  userId          String
+  skill           String
+  durationMinutes Int
+  bandScore       Float?
+  note            String   @default("")
+  practicedAt     DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, practicedAt])
+}
+
+model SpeakingAttempt {
+  id              String   @id @default(cuid())
+  userId          String
+  topic           String
+  transcript      String   @default("")
+  wordCount       Int      @default(0)
+  wordsPerMinute  Int      @default(0)
+  fillerCount     Int      @default(0)
+  durationSeconds Int      @default(0)
+  createdAt       DateTime @default(now())
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model PersonalDocument {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  category  String
+  mimeType  String
+  sizeBytes Int
+  content   Bytes
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, createdAt])
 }

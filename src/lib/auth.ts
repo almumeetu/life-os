@@ -10,7 +10,7 @@ if (!secret || secret.length < 32) {
 }
 
 export const auth = betterAuth({
-  appName: "Saikat’s Life OS",
+  appName: "Preparation Hub",
   baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   secret,
   database: prismaAdapter(prisma, { provider: "postgresql" }),

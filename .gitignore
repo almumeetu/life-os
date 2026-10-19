@@ -12,3 +12,4 @@ src/generated/prisma/
 prisma/*.db
 prisma/*.db-journal
 .DS_Store
+.local/learning-books/

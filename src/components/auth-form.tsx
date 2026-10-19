@@ -179,7 +179,7 @@ export function AuthForm({ mode: initialMode, nextPath, locale }: { mode: "sign-
             <p>{error}</p>
             {showQuickCreate && (
               <div className="quick-create-box">
-                <p>{t("New to Life OS with {email}?", { email: emailValue || t("this email") })}</p>
+              <p>{t("New to Preparation Hub with {email}?", { email: emailValue || t("this email") })}</p>
                 <button
                   type="button"
                   className="button button-primary button-small"
@@ -203,7 +203,7 @@ export function AuthForm({ mode: initialMode, nextPath, locale }: { mode: "sign-
         <p className="auth-helper">
           {signingUp
             ? t("Your workspace is private, secure, and personal to you.")
-            : t("Your personal data is encrypted and kept private in your workspace.")}
+            : t("Your saved work is available inside your signed-in workspace.")}
         </p>
       </form>
     </div>

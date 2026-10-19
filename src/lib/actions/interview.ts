@@ -36,6 +36,5 @@ export async function saveInterviewAttempt(input: {
   });
   revalidatePath("/dashboard/interview");
   revalidatePath("/dashboard");
-  revalidatePath("/dashboard/review");
   return { ok: true, message: "Practice answer saved to your history." };
 }
