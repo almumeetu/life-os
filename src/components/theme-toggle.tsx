@@ -4,9 +4,17 @@ import { useEffect, useSyncExternalStore } from "react";
 import { Moon, Sun } from "lucide-react";
 import { translate, type Locale } from "@/lib/i18n";
 
+let temporaryTheme: "light" | "dark" | null = null;
+
 function getThemeSnapshot(): "light" | "dark" {
-  const saved = localStorage.getItem("lifeos-theme");
-  if (saved === "light" || saved === "dark") return saved;
+  if (temporaryTheme) return temporaryTheme;
+  try {
+    const saved = localStorage.getItem("lifeos-theme");
+    if (saved === "light" || saved === "dark") return saved;
+  } catch {
+    const current = document.documentElement.getAttribute("data-theme");
+    if (current === "light" || current === "dark") return current;
+  }
   return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
 }
 
@@ -35,7 +43,12 @@ export function ThemeToggle({ className = "", locale = "en" }: { className?: str
 
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
-    localStorage.setItem("lifeos-theme", next);
+    try {
+      localStorage.setItem("lifeos-theme", next);
+      temporaryTheme = null;
+    } catch {
+      temporaryTheme = next;
+    }
     document.documentElement.setAttribute("data-theme", next);
     window.dispatchEvent(new Event("lifeos-theme-change"));
   }

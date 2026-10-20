@@ -79,23 +79,20 @@ export function AuthForm({ mode: initialMode, nextPath, locale }: { mode: "sign-
     await handleAuth(cleanEmail, passwordValue, nameValue, signingUp);
   }
 
-  async function quickCreateAccount() {
-    const cleanEmail = emailValue.trim().toLowerCase();
-    if (!cleanEmail || !passwordValue) {
-      setMode("sign-up");
-      return;
-    }
-    await handleAuth(cleanEmail, passwordValue, nameValue || "Al Mumeetu Saikat", true);
+  function quickCreateAccount() {
+    setMode("sign-up");
+    setError("");
+    setShowQuickCreate(false);
   }
 
   return (
     <div className="auth-form-container">
       {/* Segmented Mode Selector */}
-      <div className="auth-tabs" role="tablist">
+      <div className="auth-tabs" role="group" aria-label={t("Account")}>
         <button
           type="button"
-          role="tab"
-          aria-selected={!signingUp}
+          aria-pressed={!signingUp}
+          disabled={pending}
           className={`auth-tab ${!signingUp ? "active" : ""}`}
           onClick={() => { setMode("sign-in"); setError(""); setShowQuickCreate(false); }}
         >
@@ -104,8 +101,8 @@ export function AuthForm({ mode: initialMode, nextPath, locale }: { mode: "sign-
         </button>
         <button
           type="button"
-          role="tab"
-          aria-selected={signingUp}
+          aria-pressed={signingUp}
+          disabled={pending}
           className={`auth-tab ${signingUp ? "active" : ""}`}
           onClick={() => { setMode("sign-up"); setError(""); setShowQuickCreate(false); }}
         >
@@ -167,7 +164,7 @@ export function AuthForm({ mode: initialMode, nextPath, locale }: { mode: "sign-
               className="password-toggle-btn"
               onClick={() => setShowPassword((prev) => !prev)}
               aria-label={t(showPassword ? "Hide password" : "Show password")}
-              tabIndex={-1}
+              aria-pressed={showPassword}
             >
               {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
             </button>

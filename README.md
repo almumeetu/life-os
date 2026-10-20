@@ -9,6 +9,8 @@ A private workspace for interview preparation, IELTS practice, English speaking,
 - IELTS goal and exam date, plus practice logs for Listening, Reading, Writing and Speaking.
 - English speaking prompts with optional browser speech recognition, a timer, transcript review and saved practice history.
 - Bangla beginner reading room at `/dashboard/learn`: original book pages, zoom, browser bookmarks and notes, a four-step daily routine, seven starter explanations, and record/replay/download for the learner's own voice.
+- Learning playground at `/dashboard/practice`: three four-question English challenges with English/Bangla explanations, answer review and personal bests. Results are scoped to the account in this browser's local storage; they are not synced or included in account backups.
+- A guided home screen with a read → challenge → speak routine, progress for the same 60-class Spoken English course opened by the continue link, and mobile quick navigation.
 - Job tracker for roles, company names, links, stages, follow-up dates and notes.
 - Study-abroad checklist for requirements, deadlines and official source links, plus university and scholarship tracking.
 - Personal document storage for PDF, Word, JPG, PNG and WebP files. Each file can be up to 5 MB and the account limit is 15 MB.
